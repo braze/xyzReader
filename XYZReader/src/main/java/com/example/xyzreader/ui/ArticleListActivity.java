@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
@@ -9,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -58,12 +61,35 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.toolbar_container);
+        AppBarLayout mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = false;
+            int scrollRange = -1;
+
+            @SuppressLint("NewApi")
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    isShow = true;
+                    collapsingToolbarLayout.setTitle(getString(R.string.app_name));
+                    collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.cardview_dark_background));
+                } else if (isShow) {
+                    isShow = false;
+                    collapsingToolbarLayout.setTitle("");
+                }
+            }
+        });
 
 
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-        //Refresh recyclerView
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.green, R.color.red, R.color.yellow);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -80,6 +106,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     private void refresh() {
+        mSwipeRefreshLayout.setRefreshing(false);
         startService(new Intent(this, UpdaterService.class));
     }
 
@@ -153,7 +180,8 @@ public class ArticleListActivity extends AppCompatActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(ArticleListActivity.this).toBundle();
+                    Bundle bundle = ActivityOptions.
+                            makeSceneTransitionAnimation(ArticleListActivity.this).toBundle();
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))), bundle);
                 }

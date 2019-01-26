@@ -17,9 +17,11 @@
 
 <resources>
     <color name="photo_placeholder">#F0F0F0</color>
-
     <color name="theme_primary">#FFFFFF</color>
     <color name="theme_primary_dark">#646464</color>
     <color name="theme_accent">#6b38fb</color>
     <color name="ltgray">#201f1f</color>
+    <color name="green">#43A047</color>
+    <color name="red">#E53935</color>
+    <color name="yellow">#FDD835</color>
 </resources>
